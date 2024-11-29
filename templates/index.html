@@ -1,36 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Список модулей</title>
+    <title>Главная страница</title>
   </head>
   <body>
-    <h1>Список модулей</h1>
-    <a href="/add">Добавить новый модуль</a>
-    <table border="1">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Должности</th>
-          <th>Мероприятия</th>
-          <th>Источник данных</th>
-          <th>Срок</th>
-          <th>Ответственное лицо</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for module in modules %}
-        <tr>
-          <td>{{ module.name }}</td>
-          <td>{{ module.positions }}</td>
-          <td>{{ module.events }}</td>
-          <td>{{ module.data_source }}</td>
-          <td>{{ module.deadline }}</td>
-          <td>{{ module.responsible }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="container">
+      <h1 class="mt-5">Добро пожаловать на главную страницу</h1>
+      <p class="lead">Нажмите кнопку ниже, чтобы создать новый модуль:</p>
+      <a href="/add" class="btn btn-primary">Создать новый модуль</a>
+    </div>
   </body>
 </html>

@@ -1,7 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for
 from db import Database
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
+Bootstrap(app)
+
 db = Database()
 
 
@@ -37,11 +40,11 @@ def add_module():
 
 @app.route('/')
 def index():
-    db.connect()
-    modules = db.get_modules()
-    db.close()
+    # db.connect()
+    # modules = db.get_modules()
+    # db.close()
 
-    return render_template('index.html', modules=modules)
+    return render_template('index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
