@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список модулей</title>
+  </head>
+  <body>
+    <h1>Список модулей</h1>
+    <a href="/add">Добавить новый модуль</a>
+    <table border="1">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Должности</th>
+          <th>Мероприятия</th>
+          <th>Источник данных</th>
+          <th>Срок</th>
+          <th>Ответственное лицо</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for module in modules %}
+        <tr>
+          <td>{{ module.name }}</td>
+          <td>{{ module.positions }}</td>
+          <td>{{ module.events }}</td>
+          <td>{{ module.data_source }}</td>
+          <td>{{ module.deadline }}</td>
+          <td>{{ module.responsible }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
