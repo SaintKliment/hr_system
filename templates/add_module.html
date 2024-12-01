@@ -4,89 +4,158 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Добавить модуль</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #4caf50;
+        text-align: center;
+      }
+
+      form {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      label {
+        color: #333333;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0 20px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        display: inline-block;
+        margin-top: 10px;
+        border-radius: 4px;
+      }
+
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+
+      .activity {
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+      }
+
+      #activities {
+        margin-bottom: 20px;
+      }
+
+      #activities .activity:nth-child(odd) {
+        background-color: #e9f5e9;
+      }
+    </style>
   </head>
   <body>
     <h1>Добавить модуль</h1>
     <form action="/add" method="POST">
-      <label for="module_name">Название модуля:</label><br />
-      <input
-        type="text"
-        id="module_name"
-        name="module_name"
-        required
-      /><br /><br />
+      <label for="module_name">Название модуля:</label>
+      <input type="text" id="module_name" name="module_name" required />
 
-      <label for="positions">Должности:</label><br />
+      <label for="positions">Должности:</label>
       <select name="positions" id="positions" required>
         <option value="position1">Должность 1</option>
         <option value="position2">Должность 2</option>
         <option value="position3">Должность 3</option>
-        <option value="position4">Должность 4</option></select
-      ><br /><br />
+        <option value="position4">Должность 4</option>
+      </select>
 
-      <label for="activities">Перечень мероприятий:</label><br />
+      <label for="activities">Перечень мероприятий:</label>
       <div id="activities">
-        <div class="activity">
-          <label for="activity_name_1">Наименование мероприятия:</label><br />
+        <div class="activity" id="activity_1">
+          <label for="activity_name_1">Наименование мероприятия:</label>
           <input
             type="text"
             id="activity_name_1"
             name="activity_name[]"
             required
-          /><br />
+          />
 
-          <label for="activity_type_1">Тип мероприятия:</label><br />
+          <label for="activity_type_1">Тип мероприятия:</label>
           <select name="activity_type[]" id="activity_type_1" required>
             <option value="theory">Теория</option>
-            <option value="practice">Практика</option></select
-          ><br />
+            <option value="practice">Практика</option>
+          </select>
 
-          <label for="activity_content_1">Содержание мероприятия:</label><br />
+          <label for="activity_content_1">Содержание мероприятия:</label>
           <textarea
             name="activity_content[]"
             id="activity_content_1"
             rows="4"
-            cols="50"
             required
-          ></textarea
-          ><br /><br />
+          ></textarea>
         </div>
       </div>
 
       <button type="button" onclick="addActivity()">
         Добавить мероприятие
       </button>
-      <button type="button" onclick="removeActivity()">
-        Убрать мероприятие</button
-      ><br /><br />
+      <button
+        type="button"
+        onclick="removeActivity()"
+        style="background-color: #6c757d"
+      >
+        Убрать мероприятие
+      </button>
+      <br /><br />
+      <label for="data_source">Источник данных:</label>
+      <input type="text" id="data_source" name="data_source" required />
 
-      <label for="data_source">Источник данных:</label><br />
-      <input
-        type="text"
-        id="data_source"
-        name="data_source"
-        required
-      /><br /><br />
+      <label for="duration">Срок прохождения модуля (в днях):</label>
+      <input type="number" id="duration" name="duration" required />
 
-      <label for="duration">Срок прохождения модуля (в днях):</label><br />
-      <input type="number" id="duration" name="duration" required /><br /><br />
-
-      <label for="responsible">Ответственное лицо:</label><br />
-      <input
-        type="text"
-        id="responsible"
-        name="responsible"
-        required
-      /><br /><br />
+      <label for="responsible">Ответственное лицо:</label>
+      <input type="text" id="responsible" name="responsible" required />
 
       <button type="submit">Добавить модуль</button>
     </form>
-    <a href="/" class="btn btn-secondary mt-3">Назад на главную</a>
+    <a href="/" class="btn-secondary">Назад на главную</a>
 
     <script>
       let activityCount = 1;
 
-      // Добавить мероприятие
       function addActivity() {
         activityCount++;
         const activitiesDiv = document.getElementById("activities");
@@ -95,23 +164,22 @@
         newActivity.setAttribute("id", "activity_" + activityCount);
 
         newActivity.innerHTML = `
-                <label for="activity_name_${activityCount}">Наименование мероприятия:</label><br>
-                <input type="text" id="activity_name_${activityCount}" name="activity_name[]" required><br>
-                
-                <label for="activity_type_${activityCount}">Тип мероприятия:</label><br>
-                <select name="activity_type[]" id="activity_type_${activityCount}" required>
-                    <option value="theory">Теория</option>
-                    <option value="practice">Практика</option>
-                </select><br>
+        <label for="activity_name_${activityCount}">Наименование мероприятия:</label>
+        <input type="text" id="activity_name_${activityCount}" name="activity_name[]" required />
 
-                <label for="activity_content_${activityCount}">Содержание мероприятия:</label><br>
-                <textarea name="activity_content[]" id="activity_content_${activityCount}" rows="4" cols="50" required></textarea><br><br>
-            `;
+        <label for="activity_type_${activityCount}">Тип мероприятия:</label>
+        <select name="activity_type[]" id="activity_type_${activityCount}" required>
+          <option value="theory">Теория</option>
+          <option value="practice">Практика</option>
+        </select>
+
+        <label for="activity_content_${activityCount}">Содержание мероприятия:</label>
+        <textarea name="activity_content[]" id="activity_content_${activityCount}" rows="4" required></textarea>
+      `;
 
         activitiesDiv.appendChild(newActivity);
       }
 
-      // Убрать мероприятие
       function removeActivity() {
         if (activityCount > 1) {
           const activityDiv = document.getElementById(
