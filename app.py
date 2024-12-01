@@ -1,12 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for
-from db import Database
 from flask_bootstrap import Bootstrap
+from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+from db import db
 
 app = Flask(__name__)
 Bootstrap(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 
-db = Database()
-
+db.init_app(app)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_module():
@@ -25,8 +27,6 @@ def add_module():
         duration = request.form['duration']
         responsible = request.form['responsible']
         
-        # Логика обработки данных
-        # (например, сохранение в базу данных или вывод на экран)
         print("Название модуля:", module_name)
         print("Должности:", positions)
         print("Мероприятия:", activities)
@@ -40,11 +40,12 @@ def add_module():
 
 @app.route('/')
 def index():
-    # db.connect()
-    # modules = db.get_modules()
-    # db.close()
-
     return render_template('index.html')
 
 if __name__ == '__main__':
+    with app.app_context():
+        # Создать таблицы, если их нет
+        db.create_all()
+        print("Таблицы успешно созданы.")
+
     app.run(debug=True)

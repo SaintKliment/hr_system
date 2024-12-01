@@ -1,3 +1,5 @@
 flask
 psycopg2
 flask-bootstrap
+psycopg2-binary
+sqlalchemy
