@@ -1,11 +1,10 @@
 DATABASE = {
-    'dbname': 'hr_system',
+    'dbname': 'postgres',
     'user': 'postgres',
-    'password': 'lomalsteklo',
+    'password': '548549q',
     'host': 'localhost',  # или IP-адрес вашего сервера
     'port': '5432'  # стандартный порт PostgreSQL
 }
-# 1234567890
 
 SQLALCHEMY_DATABASE_URI = (
     f"postgresql://{DATABASE['user']}:{DATABASE['password']}@"
