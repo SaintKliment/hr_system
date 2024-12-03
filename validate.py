@@ -3,37 +3,32 @@ import re
 def validate_fullname(fullname):
     """Валидация ФИО: должно содержать только буквы и пробелы."""
     pattern = r'^[А-ЯЁа-яё\s-]+$'  # Поддержка кириллицы и пробелов
-    if re.match(pattern, fullname):
-        return True
-    return False
+    return bool(re.match(pattern, fullname))
 
 def validate_email(email):
     """Валидация электронной почты."""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    if re.match(pattern, email):
-        return True
-    return False
+    return bool(re.match(pattern, email))
 
-def validate_password(password):
-    """Валидация пароля: минимум 8 символов, включая буквы и цифры."""
-    pattern = r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$'
-    if re.match(pattern, password):
-        return True
-    return False
+def validate_number(number):
+    """Валидация числа (например, срока модуля)."""
+    return number.isdigit() and int(number) > 0
+
+def validate_activity_content(content):
+    """Валидация содержания мероприятия: не должно быть пустым."""
+    return bool(content.strip())
+
+def validate_module_name(module_name):
+    """Валидация названия модуля: не должно быть пустым."""
+    return bool(module_name.strip())
+
+def validate_positions(positions):
+    """Валидация должностей: должно быть выбрано значение."""
+    return positions != ""
 
 def validate_file_upload(file_name):
     """Валидация имени файла: разрешенные расширения."""
-    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'pdf'}
+    allowed_extensions = {'pdf', 'pptx', 'xlsx', 'docx', 'jpg', 'mkv', 'avi', 'mp', 'url'}
     extension = file_name.rsplit('.', 1)[1].lower() if '.' in file_name else ''
     
-    if extension in allowed_extensions:
-        return True
-    return False
-
-# Примеры использования функций
-if __name__ == "__main__":
-    # Примеры тестирования функций
-    print(validate_fullname("Иванов Иван Иванович"))  # True
-    print(validate_email("example@mail.com"))           # True
-    print(validate_password("Password123"))              # True
-    print(validate_file_upload("image.png"))             # True
+    return extension in allowed_extensions
