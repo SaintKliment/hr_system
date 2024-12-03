@@ -16,6 +16,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 db.init_app(app)
 
+@app.before_first_request
+def create_tables():
+    """Создание всех таблиц перед первым запросом."""
+    with app.app_context():
+        db.create_all()
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
 with app.app_context():
     db.create_all()
 
