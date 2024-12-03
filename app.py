@@ -8,6 +8,9 @@ app = Flask(__name__)
 Bootstrap(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
+app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
+
 db.init_app(app)
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -34,6 +37,12 @@ def add_module():
         print("Срок прохождения модуля:", duration)
         print("Ответственное лицо:", responsible)
         
+        uploaded_files = request.files.getlist('materials[]')  # Получить все файлы
+        for file in uploaded_files:
+            if file.filename != '':
+                file.save(f"./uploads/{file.filename}")  # Сохранение файлов
+
+
         return redirect(url_for('index'))
 
     return render_template('add_module.html')
