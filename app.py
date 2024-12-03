@@ -5,7 +5,8 @@ from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
-
+from models.User import User
+    
 app = Flask(__name__)
 Bootstrap(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
@@ -15,19 +16,6 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
 
 app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
-
-# Модель пользователя
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(256), nullable=False)
-    email = db.Column(db.String(256), nullable=False, unique=True)
-    password = db.Column(db.String(256), nullable=False)  
-    position = db.Column(db.String(256), nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.full_name}>'
 
 # Декоратор для проверки аутентификации
 def login_required(f):
@@ -111,7 +99,7 @@ def signup():
         email = request.form['email']
         password = request.form['password']
         position = request.form.get('position', '')
-
+        
         user = User.query.filter_by(email=email).first()
         if user:
             flash("Пользователь с таким email уже существует!", "danger")
