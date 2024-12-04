@@ -188,34 +188,40 @@
         background-color: #f4f4f4;
       }
     </style>
-    <h1>Список модулей</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Название модуля</th>
-          <th>Должности</th>
-          <th>Мероприятия</th>
-          <th>Источник данных</th>
-          <th>Срок (дни)</th>
-          <th>Ответственное лицо</th>
-          <th>Материалы</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for module in modules %}
-        <tr>
-          <td>{{ module.id }}</td>
-          <td>{{ module.module_name }}</td>
-          <td>{{ module.positions }}</td>
-          <td>{{ module.activities }}</td>
-          <td>{{ module.data_source }}</td>
-          <td>{{ module.duration }}</td>
-          <td>{{ module.responsible }}</td>
-          <td>{{ module.materials }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </body>
-</html>
+  <h1>Список модулей</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Название модуля</th>
+        <th>Должности</th>
+        <th>Мероприятия</th>
+        <th>Источник данных</th>
+        <th>Срок (дни)</th>
+        <th>Ответственное лицо</th>
+        <th>Материалы</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for module in modules %}
+      <tr>
+        <td>{{ module.id }}</td>
+        <td>{{ module.module_name }}</td>
+        <td>{{ module.positions | join(', ') if module.positions else '-' }}</td> 
+        <td>
+          {% if module.activities %}
+            {% for activity in module.activities %}
+              {{ activity.name }}; {{ activity.type }}; {{ activity.content }}<br />
+            {% endfor %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ module.data_source }}</td>
+        <td>{{ module.duration }}</td>
+        <td>{{ module.responsible }}</td>
+        <td>{{ module.materials if module.materials else '-' }}</td> 
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
