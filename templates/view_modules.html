@@ -1,56 +1,16 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Просмотр модулей</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+      }
     </style>
-</head>
-<body>
-    <h1>Список модулей</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Название модуля</th>
-                <th>Должности</th>
-                <th>Мероприятия</th>
-                <th>Источник данных</th>
-                <th>Срок (дни)</th>
-                <th>Ответственное лицо</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for module in modules %}
-            <tr>
-                <td>{{ module.id }}</td>
-                <td>{{ module.module_name }}</td>
-                <td>{{ module.positions }}</td>
-                <td>{{ module.activities }}</td>
-                <td>{{ module.data_source }}</td>
-                <td>{{ module.duration }}</td>
-                <td>{{ module.responsible }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
+  </head>
+  <body>
     <a href="/">Назад на главную</a>
-</body>
+  </body>
 </html>

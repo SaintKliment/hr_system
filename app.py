@@ -20,13 +20,6 @@ app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
 
 
-@app.route('/view_modules')
-def view_modules():
-    modules = Module.query.all()  # Получаем все модули
-    return render_template('view_modules.html', modules=modules)
-
-
-
 # Декоратор для проверки аутентификации
 def login_required(f):
     @wraps(f)
@@ -56,12 +49,26 @@ def add_module():
         duration = request.form['duration']
         responsible = request.form['responsible']
 
-        print("Название модуля:", module_name)
-        print("Должности:", positions)
-        print("Мероприятия:", activities)
-        print("Источник данных:", data_source)
-        print("Срок прохождения модуля:", duration)
-        print("Ответственное лицо:", responsible)
+        new_module = Module(
+        module_name=module_name,
+        positions=positions,
+        activities=activities,
+        data_source=data_source,
+        duration=duration,
+        responsible=responsible
+        )
+
+        # Добавление записи в сессию и сохранение в базе данных
+        try:
+            db.session.add(new_module)
+            db.session.commit()
+            print("Новый модуль успешно добавлен в базу данных.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Произошла ошибка при добавлении модуля: {str(e)}")
+        finally:
+            db.session.close()
+
         
         uploaded_files = request.files.getlist('materials[]')  # Получить все файлы
         for file in uploaded_files:
@@ -91,12 +98,25 @@ def draft():
         duration = request.form['duration']
         responsible = request.form['responsible']
 
-        print("Название модуля:", module_name)
-        print("Должности:", positions)
-        print("Мероприятия:", activities)
-        print("Источник данных:", data_source)
-        print("Срок прохождения модуля:", duration)
-        print("Ответственное лицо:", responsible)
+        new_module = Module(
+        module_name=module_name,
+        positions=positions,
+        activities=activities,
+        data_source=data_source,
+        duration=duration,
+        responsible=responsible
+        )
+
+        # Добавление записи в сессию и сохранение в базе данных
+        try:
+            db.session.add(new_module)
+            db.session.commit()
+            print("Новый модуль успешно добавлен в базу данных.")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Произошла ошибка при добавлении модуля: {str(e)}")
+        finally:
+            db.session.close()
         
         return redirect(url_for('index'))
     return render_template('draft.html')
@@ -151,7 +171,8 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    return render_template('index.html')
+    modules = Module.query.all() 
+    return render_template('index.html', modules=modules)
 
 if __name__ == '__main__':
     with app.app_context():
