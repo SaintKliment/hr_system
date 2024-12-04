@@ -11,6 +11,7 @@ from functools import wraps
 from models.User import User
 from flask_migrate import Migrate
 from models.module import Module
+from models.joint_development import Collaboration
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -214,8 +215,43 @@ def index():
     modules = Module.query.all() 
     return render_template('index.html', modules=modules)
 
+
+
+
+@app.route('/view_collaborations')
+def view_collaborations():
+    collaborations = Collaboration.query.all()  
+    return render_template('view_collaborations.html', collaborations=collaborations)
+
+
+@app.route('/collaborate', methods=['GET', 'POST'])
+def manage_collaboration():
+    modules = Module.query.all()  
+    users = User.query.all()      
+
+    if request.method == 'POST':
+        module_id = request.form.get('module_id')
+        user_id = request.form.get('user_id')
+        action = request.form.get('action')
+
+        if action == 'add':
+            new_collab = Collaboration(module_id=module_id, user_id=user_id)
+            db.session.add(new_collab)
+            db.session.commit()
+        elif action == 'remove':
+            collaboration_to_remove = Collaboration.query.filter_by(module_id=module_id, user_id=user_id).first()
+            if collaboration_to_remove:
+                db.session.delete(collaboration_to_remove)
+                db.session.commit()
+
+
+    return render_template('collaborate.html', modules=modules, users=users)
+
+
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Создать таблицы, если их нет
+        db.create_all()  
         print("Таблицы успешно созданы.")
     app.run(debug=True)
+ 
