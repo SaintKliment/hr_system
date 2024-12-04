@@ -6,6 +6,9 @@ from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.User import User
+from validate import validate_fullname, validate_email, validate_password, validate_file_upload, validate_positions,validate_activity_content,validate_module_name,validate_number
+from db import db 
+from models.models import db, Module
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -16,6 +19,14 @@ app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
 
 app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
+
+
+@app.route('/view_modules')
+def view_modules():
+    modules = Module.query.all()  # Получаем все модули
+    return render_template('view_modules.html', modules=modules)
+
+
 
 # Декоратор для проверки аутентификации
 def login_required(f):
