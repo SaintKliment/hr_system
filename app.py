@@ -6,9 +6,8 @@ from db import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.User import User
-from validate import validate_fullname, validate_email, validate_password, validate_file_upload, validate_positions,validate_activity_content,validate_module_name,validate_number
 from db import db 
-from models.models import db, Module
+from models.module import Module
     
 app = Flask(__name__)
 Bootstrap(app)
