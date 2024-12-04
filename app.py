@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, abort, render_template, request, redirect, url_for, flash, session
 import os
 import json
 from werkzeug.utils import secure_filename 
@@ -118,13 +118,33 @@ def draft():
         duration = request.form['duration']
         responsible = request.form['responsible']
 
+        materials = []
+        for file in request.files.getlist('materials[]'):
+            print("Processing file:", file.filename)
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file_data = file.read()
+                materials.append({
+                    'filename': filename,
+                    'data': str(file_data)  # Преобразуем в строку для отладки
+                })
+            else:
+                print("Empty file or filename")
+
+        print("Materials before JSON conversion:", materials)
+        materials_json = json.dumps(materials)
+        print("Materials JSON:", materials_json)
+
+
+
         new_module = Module(
         module_name=module_name,
         positions=positions,
         activities=activities,
         data_source=data_source,
         duration=duration,
-        responsible=responsible
+        responsible=responsible,
+        materials=materials_json
         )
 
         # Добавление записи в сессию и сохранение в базе данных
@@ -137,7 +157,7 @@ def draft():
             print(f"Произошла ошибка при добавлении модуля: {str(e)}")
         finally:
             db.session.close()
-        
+            
         return redirect(url_for('index'))
     return render_template('draft.html')
 
