@@ -1,7 +1,7 @@
 DATABASE = {
-    'dbname': 'postgres',
+    'dbname': 'hr_system',
     'user': 'postgres',
-    'password': '548549q',
+    'password': 'lomalsteklo',
     'host': 'localhost',  # или IP-адрес вашего сервера
     'port': '5432'  # стандартный порт PostgreSQL
 }
