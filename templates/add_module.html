@@ -101,7 +101,12 @@
   </head>
   <body>
     <h1>Добавить модуль</h1>
-    <form action="/add" method="POST" id="moduleForm">
+    <form
+      action="/add"
+      method="POST"
+      id="moduleForm"
+      enctype="multipart/form-data"
+    >
       <label for="module_name">Название модуля:</label>
       <input type="text" id="module_name" name="module_name" required />
 

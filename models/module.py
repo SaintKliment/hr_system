@@ -11,6 +11,7 @@ class Module(db.Model):
     data_source = db.Column(db.String(255), nullable=False)
     duration = db.Column(db.Integer, nullable=False)
     responsible = db.Column(db.String(255), nullable=False)
+    materials = db.Column(db.JSON, nullable=True)  
 
 
 def __repr__(self):

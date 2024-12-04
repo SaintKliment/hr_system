@@ -9,6 +9,7 @@ class User(db.Model):
     email = db.Column(db.String(256), nullable=False, unique=True)
     password = db.Column(db.String(256), nullable=False)  
     position = db.Column(db.String(256), nullable=False)
+    materials = db.Column(db.LargeBinary, nullable=True)  # Новая колонка для бинарных данных
 
     def __repr__(self):
         return f'<User {self.full_name}>'
