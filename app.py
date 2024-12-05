@@ -10,7 +10,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.User import User
 from flask_migrate import Migrate
-from models.module import Module
+from models.Module import Module
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -131,9 +131,7 @@ def draft():
             else:
                 print("Empty file or filename")
 
-        print("Materials before JSON conversion:", materials)
         materials_json = json.dumps(materials)
-        print("Materials JSON:", materials_json)
 
 
 
@@ -211,8 +209,51 @@ def logout():
 @app.route('/')
 @login_required
 def index():
-    modules = Module.query.all() 
+    modules = Module.query.all()
     return render_template('index.html', modules=modules)
+
+@app.route('/hr_add', methods=['GET', 'POST'])
+@login_required
+def hr_add():
+    if request.method == 'POST':
+        # Получаем данные из формы
+        code_name = request.form.get('module_name')
+        responsible_user_ids = request.form.getlist('responsible_users')
+        duration_develop = request.form.get('duration')
+        importance = request.form.get('importance')
+        state = "новый"
+
+
+        new_module = Module(
+        code_name=code_name,
+        state=state,
+        responsible_user_ids=responsible_user_ids,
+        duration_develop=duration_develop,
+        importance=importance
+        )
+
+        # Добавление записи в сессию и сохранение в базе данных
+        try:
+            db.session.add(new_module)
+            db.session.commit()
+            print("Новый модуль успешно добавлен в базу данных.")
+            # send_messages_developers() # отправить сообщение о новом модуле всем пользователям
+        except Exception as e:
+            db.session.rollback()
+            print(f"Произошла ошибка при добавлении модуля: {str(e)}")
+        finally:
+            db.session.close()
+
+        return redirect(url_for('index'))
+    
+    users = User.query.all()
+    return render_template('hr_add.html', users=users)  
+
+@app.route('/view_modules', methods=['GET'])
+@login_required
+def view_modules():
+    modules = Module.query.all()
+    return render_template('modules.html', modules=modules)  
 
 if __name__ == '__main__':
     with app.app_context():
