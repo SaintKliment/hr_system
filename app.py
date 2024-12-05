@@ -252,8 +252,15 @@ def hr_add():
 @app.route('/view_modules', methods=['GET'])
 @login_required
 def view_modules():
-    modules = Module.query.all()
+    modules = Module.query.filter(Module.state.in_( ['новый', 'черновик'] )).all()
     return render_template('modules.html', modules=modules)  
+
+@app.route('/module/<int:module_id>', methods=['GET'])
+@login_required
+def module_detail(module_id):
+    module = Module.query.get_or_404(module_id)  # Получаем модуль по ID или 404, если не найден
+    return render_template('module_detail.html', module=module)
+
 
 if __name__ == '__main__':
     with app.app_context():

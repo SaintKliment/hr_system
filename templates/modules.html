@@ -40,7 +40,12 @@
                 {% else %} gray 
                 {% endif %};"
       >
-        {{ module.code_name }}
+        <a
+          href="{{ url_for('module_detail', module_id=module.id) }}"
+          style="color: white; text-decoration: none"
+        >
+          {{ module.code_name }}
+        </a>
       </div>
       {% endfor %}
     </div>
