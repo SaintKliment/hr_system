@@ -11,6 +11,7 @@ from functools import wraps
 from models.User import User
 from flask_migrate import Migrate
 from models.module import Module
+from models.joint_development import Collaboration
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -35,24 +36,41 @@ def login_required(f):
     return decorated_function
 
 # Маршрут для добавления модуля (только для зарегистрированных пользователей)
+positions_dict = {
+    "position1": "Должность 1",
+    "position2": "Должность 2",
+    "position3": "Должность 3",
+    "position4": "Должность 4"
+}
+
+activities_dict = {
+    "theory": "Теория",
+    "practice": "Практика"
+}
+
 @app.route('/add', methods=['GET', 'POST'])
 @login_required
 def add_module():
     if request.method == 'POST':
         module_name = request.form['module_name']
-        positions = request.form.getlist('positions')
+        
+        # Получаем список должностей и преобразуем их в русские названия
+        positions = [positions_dict.get(pos, pos) for pos in request.form.getlist('positions')]
+
+        # Формируем список мероприятий и преобразуем типы в русские названия
         activities = [
             {
                 'name': request.form.getlist('activity_name[]')[i],
-                'type': request.form.getlist('activity_type[]')[i],
+                'type': activities_dict.get(request.form.getlist('activity_type[]')[i], request.form.getlist('activity_type[]')[i]),
                 'content': request.form.getlist('activity_content[]')[i]
             }
             for i in range(len(request.form.getlist('activity_name[]')))
         ]
+
         data_source = request.form['data_source']
-        duration = request.form['duration']
+        duration = int(request.form['duration'])  # Приводим к целому числу
         responsible = request.form['responsible']
-        
+
         print("Files in request:", request.files)
         print("Materials files:", request.files.getlist('materials[]'))
 
@@ -70,19 +88,18 @@ def add_module():
                 print("Empty file or filename")
 
         print("Materials before JSON conversion:", materials)
-        materials_json = json.dumps(materials)
-        print("Materials JSON:", materials_json)
-
-
+        
+        # Преобразуем список материалов в JSON
+        materials_json = json.dumps(materials) if materials else '[]'  # Если нет материалов, возвращаем пустой массив
 
         new_module = Module(
-        module_name=module_name,
-        positions=positions,
-        activities=activities,
-        data_source=data_source,
-        duration=duration,
-        responsible=responsible,
-        materials=materials_json
+            module_name=module_name,
+            positions=positions,
+            activities=activities,
+            data_source=data_source,
+            duration=duration,
+            responsible=responsible,
+            materials=materials_json
         )
 
         # Добавление записи в сессию и сохранение в базе данных
@@ -97,6 +114,7 @@ def add_module():
             db.session.close()
 
         return redirect(url_for('index'))
+
     return render_template('add_module.html')
 
 # Маршрут для черновиков (только для зарегистрированных пользователей)
@@ -214,8 +232,43 @@ def index():
     modules = Module.query.all() 
     return render_template('index.html', modules=modules)
 
+
+
+
+@app.route('/view_collaborations')
+def view_collaborations():
+    collaborations = Collaboration.query.all()  
+    return render_template('view_collaborations.html', collaborations=collaborations)
+
+
+@app.route('/collaborate', methods=['GET', 'POST'])
+def manage_collaboration():
+    modules = Module.query.all()  
+    users = User.query.all()      
+
+    if request.method == 'POST':
+        module_id = request.form.get('module_id')
+        user_id = request.form.get('user_id')
+        action = request.form.get('action')
+
+        if action == 'add':
+            new_collab = Collaboration(module_id=module_id, user_id=user_id)
+            db.session.add(new_collab)
+            db.session.commit()
+        elif action == 'remove':
+            collaboration_to_remove = Collaboration.query.filter_by(module_id=module_id, user_id=user_id).first()
+            if collaboration_to_remove:
+                db.session.delete(collaboration_to_remove)
+                db.session.commit()
+
+
+    return render_template('collaborate.html', modules=modules, users=users)
+
+
+
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # Создать таблицы, если их нет
+        db.create_all()  
         print("Таблицы успешно созданы.")
     app.run(debug=True)
+ 
