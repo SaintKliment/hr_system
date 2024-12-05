@@ -1,4 +1,5 @@
-from flask import Flask, abort, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask_mail import Mail, Message
 import os
 import json
 from werkzeug.utils import secure_filename 
@@ -18,6 +19,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = SQLALCHEMY_TRACK_MODIFICATIONS
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
+app.config.from_object('config_smtp')  # Загрузка конфигурации из файла config.py
+mail = Mail(app)
 
 app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
@@ -210,7 +213,8 @@ def logout():
 @login_required
 def index():
     modules = Module.query.all()
-    return render_template('index.html', modules=modules)
+    count_modules = Module.query.filter(Module.state == 'новый').count()
+    return render_template('index.html', modules=modules, count_modules=count_modules)
 
 @app.route('/hr_add', methods=['GET', 'POST'])
 @login_required
@@ -237,7 +241,12 @@ def hr_add():
             db.session.add(new_module)
             db.session.commit()
             print("Новый модуль успешно добавлен в базу данных.")
-            # send_messages_developers() # отправить сообщение о новом модуле всем пользователям
+            users = User.query.filter(User.id.in_(responsible_user_ids)).all()
+            emails = [user.email for user in users]
+
+            for email in emails:
+                print(email)
+                # send_email(email) # отправка шаблонного сообщения - уведомления о новом модуле
         except Exception as e:
             db.session.rollback()
             print(f"Произошла ошибка при добавлении модуля: {str(e)}")
@@ -260,6 +269,15 @@ def view_modules():
 def module_detail(module_id):
     module = Module.query.get_or_404(module_id)  # Получаем модуль по ID или 404, если не найден
     return render_template('module_detail.html', module=module)
+
+def send_email(recipient):
+    msg = Message("Назначение разработчиком адаптационного модуля",
+                  recipients=[recipient])
+    msg.body = "Добрый день, коллеги.\nВы назначены разработчиком адаптационного модуля. Просим ознакомиться с приказом и приступить к работе."
+    msg.html = "<p>Добрый день, коллеги.</p><p>Вы назначены разработчиком адаптационного модуля. Просим ознакомиться с приказом и приступить к работе.</p>"
+    
+    with app.app_context():
+        mail.send(msg)
 
 
 if __name__ == '__main__':

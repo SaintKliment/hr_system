@@ -156,18 +156,30 @@
           <a href="/draft" class="custom-btn btn-gray">
             <span>Перейти в черновик</span>
           </a>
-
-          <a href="/hr_add" class="custom-btn btn-green me-3">
-            <span>Создать новый модуль HR</span>
+          <a href="/hr_add" class="custom-btn btn-gray">
+            <span>Назначить новый модуль HR</span>
           </a>
-          <a href="/view_modules" class="custom-btn btn-gray">
-            <span>Перейти в к модулям</span>
+          <a href="/view_modules" class="custom-btn btn-green me-3">
+            <span>Перейти к модулям</span>
+            {% if count_modules > 0 %}
+            <span class="notification-badge">{{ count_modules }}</span>
+            {% endif %}
           </a>
         </div>
       </div>
     </div>
 
     <style>
+      .notification-badge {
+        display: inline-block;
+        background-color: red; /* Цвет фона кружка */
+        color: white; /* Цвет текста */
+        border-radius: 50%; /* Круглая форма */
+        padding: 5px 10px; /* Отступы для размера */
+        font-size: 14px; /* Размер шрифта */
+        margin-left: 8px; /* Отступ слева от кнопки */
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;
