@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Информация о модуле</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa; /* Светлый фон */
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #28a745; /* Зеленый цвет заголовка */
+      }
+
+      .module-details {
+        background-color: #ffffff; /* Белый фон для деталей */
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Информация о модуле: {{ module.module_name }}</h1>
+
+    <div class="module-details">
+      <p><strong>ID:</strong> {{ module.id }}</p>
+      <p><strong>Название:</strong> {{ module.module_name }}</p>
+      <p><strong>Важность:</strong> {{ module.importance }}</p>
+      <p><strong>Состояние:</strong> {{ module.state }}</p>
+      <p>
+        <strong>Срок разработки:</strong> {{ module.duration_develop }} дней
+      </p>
+    </div>
+  </body>
+</html>

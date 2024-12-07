@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление совместной разработкой</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh; 
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 400px; 
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #4caf50; 
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: calc(50% - 5px); 
+        }
+        button:hover {
+            background-color: #45a049; 
+        }
+        .button-container {
+            display: flex; 
+            justify-content: space-between; 
+        }
+        .back-button {
+            display: block; 
+            text-align: center; 
+            margin-top: 15px;
+            padding: 10px; 
+            background-color: #2E8B57	; 
+            color: white; 
+            border-radius: 4px; 
+            text-decoration: none; 
+        }
+        .back-button:hover {
+            background-color: #80e080; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Управление совместной разработкой</h1>
+
+        <form method="POST">
+            <label for="module_id">Выберите модуль:</label>
+            <select name="module_id" id="module_id" required>
+                {% for module in modules %}
+                    <option value="{{ module.id }}">{{ module.name }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="user_id">Выберите пользователя:</label>
+            <select name="user_id" id="user_id" required>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.fullname }}</option> 
+                {% endfor %}
+            </select>
+
+            <div class="button-container">
+                <button type="submit" name="action" value="add">Добавить</button>
+                <button type="submit" name="action" value="remove">Удалить</button>
+            </div>
+        </form>
+
+        <a href="/" class="back-button">Назад на главную</a> 
+</body>
+</html>
