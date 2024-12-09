@@ -13,6 +13,7 @@ from models.User import User
 from flask_migrate import Migrate
 from models.Module import Module
 from flask_socketio import SocketIO, emit
+
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -204,12 +205,15 @@ def login():
         flash("Неверный email или пароль.", "danger")
     return render_template('login.html')
 
+
+
 # Выход
 @app.route('/logout')
 def logout():
-    session.clear()
+    session.clear()  
     flash("Вы успешно вышли из системы.", "success")
-    return redirect(url_for('login'))
+    return redirect(url_for('login'))  
+
 
 # Главная страница (только для зарегистрированных пользователей)
 @app.route('/')
@@ -217,7 +221,9 @@ def logout():
 def index():
     modules = Module.query.all()
     count_modules = Module.query.filter(Module.state == 'новый').count()
-    return render_template('index.html', modules=modules, count_modules=count_modules)
+    user_logged_in = 'user_id' in session  
+    return render_template('index.html', modules=modules, count_modules=count_modules, user_logged_in=user_logged_in)
+
 
 @app.route('/hr_add', methods=['GET', 'POST'])
 @login_required
