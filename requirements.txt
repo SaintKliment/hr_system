@@ -4,3 +4,4 @@ flask-bootstrap
 psycopg2-binary
 Flask-SQLAlchemy
 Flask-Migrate
+Flask-Mail

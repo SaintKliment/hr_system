@@ -11,7 +11,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 from models.User import User
 from flask_migrate import Migrate
-from models.module import Module
+from models.Module import Module
+from flask_socketio import SocketIO, emit
+
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -21,7 +23,7 @@ app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
 app.config.from_object('config_smtp')  # Загрузка конфигурации из файла config.py
 mail = Mail(app)
-
+socketio = SocketIO(app)
 app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -79,6 +81,7 @@ def add_module():
 
 
         new_module = Module(
+        # state = "согласование",
         module_name=module_name,
         positions=positions,
         activities=activities,
@@ -139,6 +142,7 @@ def draft():
 
 
         new_module = Module(
+        # state = "согласование",
         module_name=module_name,
         positions=positions,
         activities=activities,
@@ -269,6 +273,54 @@ def view_modules():
     modules = Module.query.filter(Module.state.in_( ['новый', 'черновик'] )).all()
     return render_template('modules.html', modules=modules)  
 
+
+@app.route('/joint_development/<int:module_id>', methods=['GET'])
+@login_required
+def joint_development_detail(module_id):
+    module = Module.query.get_or_404(module_id)  # Получаем модуль по ID или 404, если не найден
+    return render_template('module_correct.html', module=module)
+
+@app.route('/joint_development', methods=['GET'])
+@login_required
+def joint_development():
+    current_user_id = session['user_id']
+
+    modules = Module.query.filter(
+        Module.state.in_(['новый', 'черновик']),
+        Module.responsible_user_ids.like(f'%{current_user_id}%')  # Проверяем наличие ID в строке
+    ).all()
+
+    return render_template('joint_modules.html', modules=modules)  
+
+@socketio.on('update_module')
+def handle_update(data):
+    module_id = data.get('module_id')
+    new_name = data.get('module_name')
+    new_source = data.get('data_source')
+    new_duration = data.get('duration')
+    new_responsible = data.get('responsible')
+
+    new_duration = int(new_duration) if new_duration else None
+    
+    MAX_INT = 1000000 
+    MIN_INT = 1   
+
+    if new_duration is not None:
+        if new_duration > MAX_INT or new_duration < MIN_INT:
+            new_duration = None
+
+    # Обновление записи в БД
+    module = Module.query.get(module_id)
+    if module:
+        module.module_name = new_name
+        module.data_source = new_source 
+        module.duration = new_duration 
+        module.responsible = new_responsible 
+        db.session.commit()
+
+        # Рассылка обновленного имени всем клиентам
+        socketio.emit('module_name', {'module_id': module_id, 'module_name': new_name, 'data_source': new_source,'duration': new_duration,'responsible': new_responsible,})
+
 @app.route('/module/<int:module_id>', methods=['GET'])
 @login_required
 def module_detail(module_id):
@@ -289,4 +341,5 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Создать таблицы, если их нет
         print("Таблицы успешно созданы.")
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+
