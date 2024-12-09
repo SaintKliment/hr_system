@@ -204,13 +204,31 @@
 
       <br /><br />
       <label for="data_source">Источник данных:</label>
-      <input type="text" id="data_source" name="data_source" required />
+      <input
+        type="text"
+        id="data_source"
+        name="data_source"
+        required
+        oninput="sendMessage()"
+      />
 
       <label for="duration">Срок прохождения модуля (в днях):</label>
-      <input type="number" id="duration" name="duration" required />
+      <input
+        type="number"
+        id="duration"
+        name="duration"
+        required
+        oninput="sendMessage()"
+      />
 
       <label for="responsible">Ответственное лицо:</label>
-      <input type="text" id="responsible" name="responsible" required />
+      <input
+        type="text"
+        id="responsible"
+        name="responsible"
+        required
+        oninput="sendMessage()"
+      />
 
       <label>Материалы для мероприятий:</label>
       <div id="file-inputs-container">

@@ -286,27 +286,34 @@ def joint_development():
 
     return render_template('joint_modules.html', modules=modules)  
 
-# # Обработчик события "typing"
-# @socketio.on('typing')
-# def handle_typing(msg):
-#     print(f"User is typing: {msg}")  # Логгируем на сервере
-#     socketio.emit('message', f"Echo: {msg}")  # Отправляем сообщение обратно клиенту
-
 @socketio.on('update_module')
 def handle_update(data):
     module_id = data.get('module_id')
     new_name = data.get('module_name')
+    new_source = data.get('data_source')
+    new_duration = data.get('duration')
+    new_responsible = data.get('responsible')
+
+    new_duration = int(new_duration) if new_duration else None
+    
+    MAX_INT = 1000000 
+    MIN_INT = 1   
+
+    if new_duration is not None:
+        if new_duration > MAX_INT or new_duration < MIN_INT:
+            new_duration = None
 
     # Обновление записи в БД
     module = Module.query.get(module_id)
     if module:
         module.module_name = new_name
+        module.data_source = new_source 
+        module.duration = new_duration 
+        module.responsible = new_responsible 
         db.session.commit()
 
         # Рассылка обновленного имени всем клиентам
-        socketio.emit('module_name', {'module_id': module_id, 'module_name': new_name})
-
-
+        socketio.emit('module_name', {'module_id': module_id, 'module_name': new_name, 'data_source': new_source,'duration': new_duration,'responsible': new_responsible,})
 
 @app.route('/module/<int:module_id>', methods=['GET'])
 @login_required
