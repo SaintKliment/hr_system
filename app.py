@@ -12,6 +12,7 @@ from functools import wraps
 from models.User import User
 from flask_migrate import Migrate
 from models.Module import Module
+from flask_socketio import SocketIO, emit
     
 app = Flask(__name__)
 Bootstrap(app)
@@ -21,7 +22,7 @@ app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 20 MB
 app.config.from_object('config_smtp')  # Загрузка конфигурации из файла config.py
 mail = Mail(app)
-
+socketio = SocketIO(app)
 app.secret_key = os.urandom(24)  # Для безопасности сессий
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -79,6 +80,7 @@ def add_module():
 
 
         new_module = Module(
+        # state = "согласование",
         module_name=module_name,
         positions=positions,
         activities=activities,
@@ -139,6 +141,7 @@ def draft():
 
 
         new_module = Module(
+        # state = "согласование",
         module_name=module_name,
         positions=positions,
         activities=activities,
@@ -264,6 +267,47 @@ def view_modules():
     modules = Module.query.filter(Module.state.in_( ['новый', 'черновик'] )).all()
     return render_template('modules.html', modules=modules)  
 
+
+@app.route('/joint_development/<int:module_id>', methods=['GET'])
+@login_required
+def joint_development_detail(module_id):
+    module = Module.query.get_or_404(module_id)  # Получаем модуль по ID или 404, если не найден
+    return render_template('module_correct.html', module=module)
+
+@app.route('/joint_development', methods=['GET'])
+@login_required
+def joint_development():
+    current_user_id = session['user_id']
+
+    modules = Module.query.filter(
+        Module.state.in_(['новый', 'черновик']),
+        Module.responsible_user_ids.like(f'%{current_user_id}%')  # Проверяем наличие ID в строке
+    ).all()
+
+    return render_template('joint_modules.html', modules=modules)  
+
+# # Обработчик события "typing"
+# @socketio.on('typing')
+# def handle_typing(msg):
+#     print(f"User is typing: {msg}")  # Логгируем на сервере
+#     socketio.emit('message', f"Echo: {msg}")  # Отправляем сообщение обратно клиенту
+
+@socketio.on('update_module')
+def handle_update(data):
+    module_id = data.get('module_id')
+    new_name = data.get('module_name')
+
+    # Обновление записи в БД
+    module = Module.query.get(module_id)
+    if module:
+        module.module_name = new_name
+        db.session.commit()
+
+        # Рассылка обновленного имени всем клиентам
+        socketio.emit('module_name', {'module_id': module_id, 'module_name': new_name})
+
+
+
 @app.route('/module/<int:module_id>', methods=['GET'])
 @login_required
 def module_detail(module_id):
@@ -284,4 +328,5 @@ if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Создать таблицы, если их нет
         print("Таблицы успешно созданы.")
-    app.run(debug=True)
+    socketio.run(app, debug=True)
+

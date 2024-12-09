@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список модулей</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa; /* Светлый фон */
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #28a745; /* Зеленый цвет заголовка */
+        text-align: center;
+      }
+
+      .module {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+        color: white; /* Цвет текста */
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Список модулей</h1>
+
+    <div class="modules-container">
+      {% for module in modules %}
+      <div
+        class="module"
+        style="background-color: 
+                {% if module.duration_develop < 7 %} red  
+                {% elif module.state == 'черновик' %} yellow 
+                {% elif module.state == 'новый' %} green
+                {% else %} gray 
+                {% endif %};"
+      >
+        <a
+          href="{{ url_for('joint_development_detail', module_id=module.id) }}"
+          style="color: white; text-decoration: none"
+        >
+          {{ module.code_name }}
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </body>
+</html>

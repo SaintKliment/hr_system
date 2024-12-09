@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.min.js"></script>
+    <title>Добавить модуль</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+      }
+
+      textarea {
+        resize: none;
+      }
+
+      h1 {
+        color: #4caf50;
+        text-align: center;
+      }
+
+      form {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      label {
+        color: #333333;
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0 20px;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        display: inline-block;
+        margin-top: 10px;
+        border-radius: 4px;
+      }
+
+      .btn-secondary:hover {
+        background-color: #5a6268;
+      }
+
+      .activity {
+        border: 1px solid #dddddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+      }
+
+      #activities {
+        margin-bottom: 20px;
+      }
+
+      #activities .activity:nth-child(odd) {
+        background-color: #e9f5e9;
+      }
+
+      .file-input {
+        margin-bottom: 10px;
+      }
+
+      #add-file-input:hover {
+        background-color: #45a049;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Добавить модуль</h1>
+    <form
+      action="/add"
+      method="POST"
+      id="moduleForm"
+      enctype="multipart/form-data"
+    >
+      <label for="module_name">Название модуля:</label>
+      <input
+        type="text"
+        id="module_name"
+        name="module_name"
+        required
+        oninput="sendMessage()"
+      />
+
+      <label for="code_name">Код модуля:</label>
+      <input
+        type="text"
+        id="code_name"
+        name="code_name"
+        value="{{ module.code_name }}"
+        readonly
+      />
+
+      <label for="state">Состояние:</label>
+      <select name="state" id="state" required disabled>
+        <option value="{{ module.state }}">{{ module.state }}</option>
+        <!-- Вы можете добавить другие состояния, если это необходимо -->
+        <option value="новый">Новый</option>
+        <option value="черновик">Черновик</option>
+        <option value="завершен">Завершен</option>
+        <option value="отменен">Отменен</option>
+      </select>
+
+      <label for="duration_develop">Срок разработки (в днях):</label>
+      <input
+        type="number"
+        id="duration_develop"
+        name="duration_develop"
+        value="{{ module.duration_develop }}"
+        readonly
+      />
+
+      <label for="importance">Важность:</label>
+      <select name="importance" id="importance" required disabled>
+        <option value="{{ module.importance }}">{{ module.importance }}</option>
+        <!-- Вы можете добавить другие уровни важности, если это необходимо -->
+        <option value="низкая">Низкая</option>
+        <option value="средняя">Средняя</option>
+        <option value="высокая">Высокая</option>
+      </select>
+
+      <label for="positions">Должности:</label>
+      <select name="positions" id="positions" required>
+        <option value="position1">Должность 1</option>
+        <option value="position2">Должность 2</option>
+        <option value="position3">Должность 3</option>
+        <option value="position4">Должность 4</option>
+      </select>
+
+      <label for="activities">Перечень мероприятий:</label>
+      <div id="activities">
+        <div class="activity" id="activity_1">
+          <label for="activity_name_1">Наименование мероприятия:</label>
+          <input
+            type="text"
+            id="activity_name_1"
+            name="activity_name[]"
+            required
+          />
+
+          <label for="activity_type_1">Тип мероприятия:</label>
+          <select name="activity_type[]" id="activity_type_1" required>
+            <option value="theory">Теория</option>
+            <option value="practice">Практика</option>
+          </select>
+
+          <label for="activity_content_1">Содержание мероприятия:</label>
+          <textarea
+            name="activity_content[]"
+            id="activity_content_1"
+            rows="4"
+            required
+          ></textarea>
+        </div>
+      </div>
+
+      <button type="button" onclick="addActivity()">
+        Добавить мероприятие
+      </button>
+
+      <button
+        type="button"
+        onclick="removeActivity()"
+        style="background-color: #6c757d"
+      >
+        Убрать мероприятие
+      </button>
+
+      <br /><br />
+      <label for="data_source">Источник данных:</label>
+      <input type="text" id="data_source" name="data_source" required />
+
+      <label for="duration">Срок прохождения модуля (в днях):</label>
+      <input type="number" id="duration" name="duration" required />
+
+      <label for="responsible">Ответственное лицо:</label>
+      <input type="text" id="responsible" name="responsible" required />
+
+      <label>Материалы для мероприятий:</label>
+      <div id="file-inputs-container">
+        <div class="file-input" id="file_input_1">
+          <input
+            type="file"
+            id="materials_1"
+            name="materials[]"
+            accept=".pdf,.pptx,.xlsx,.docx,.jpg,.mkv,.avi,.mp,.url"
+          />
+        </div>
+      </div>
+
+      <!-- Кнопка для добавления файлов -->
+      <button
+        type="button"
+        id="add-file-input"
+        style="
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 35px;
+          height: 35px;
+          background-color: #4caf50;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          margin-top: 10px;
+        "
+        title="Добавить файл"
+      >
+        +
+      </button>
+
+      <!-- Кнопка отправки формы -->
+      <br /><br />
+      <button type="submit">Отправить модуль на согласование</button>
+    </form>
+
+    <!-- Ссылка на главную -->
+    <a href="/" class="btn-secondary">Назад на главную</a>
+
+    <!-- Подключение JavaScript -->
+    <script src="{{ url_for('static', filename='js/add_module.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/socket_joint_dev.js') }}"></script>
+  </body>
+</html>
