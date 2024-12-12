@@ -119,41 +119,16 @@
       />
 
       <label for="code_name">Код модуля:</label>
-      <input
-        type="text"
-        id="code_name"
-        name="code_name"
-        value="{{ module.code_name }}"
-        readonly
-      />
+      <p id="code_name">{{ module.code_name }}</p>
 
       <label for="state">Состояние:</label>
-      <select name="state" id="state" required disabled>
-        <option value="{{ module.state }}">{{ module.state }}</option>
-        <!-- Вы можете добавить другие состояния, если это необходимо -->
-        <option value="новый">Новый</option>
-        <option value="черновик">Черновик</option>
-        <option value="завершен">Завершен</option>
-        <option value="отменен">Отменен</option>
-      </select>
+      <p id="state_value">{{ module.state }}</p>
 
       <label for="duration_develop">Срок разработки (в днях):</label>
-      <input
-        type="number"
-        id="duration_develop"
-        name="duration_develop"
-        value="{{ module.duration_develop }}"
-        readonly
-      />
+      <p id="duration_develop_value">{{ module.duration_develop }}</p>
 
       <label for="importance">Важность:</label>
-      <select name="importance" id="importance" required disabled>
-        <option value="{{ module.importance }}">{{ module.importance }}</option>
-        <!-- Вы можете добавить другие уровни важности, если это необходимо -->
-        <option value="низкая">Низкая</option>
-        <option value="средняя">Средняя</option>
-        <option value="высокая">Высокая</option>
-      </select>
+      <p id="importance_value">{{ module.importance }}</p>
 
       <label for="positions">Должности:</label>
       <select name="positions" id="positions" required>
