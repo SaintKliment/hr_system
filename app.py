@@ -25,6 +25,34 @@ db.init_app(app)
 migrate = Migrate(app, db)
 
 
+
+@app.route('/view_modules', methods=['GET'])
+def view_modules():
+    name_query = request.args.get('name', '') 
+    status_query = request.args.get('status')   
+
+   
+    query = Module.query
+
+ 
+    if name_query:
+        query = query.filter(Module.name.ilike(f'%{name_query}%'))  
+ 
+    if status_query in ['новый', 'черновик']:
+        query = query.filter(Module.status == status_query)
+
+    
+    modules = query.all()
+    
+   
+    return jsonify([{'id': module.id, 'name': module.name, 'status': module.status} for module in modules])
+
+if __name__ == '__main__':
+    with app.app_context():
+        db.create_all() 
+    app.run(debug=True)
+
+
 # Декоратор для проверки аутентификации
 def login_required(f):
     @wraps(f)
