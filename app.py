@@ -30,21 +30,22 @@ migrate = Migrate(app, db)
 def view_modules():
     name_query = request.args.get('name', '') 
     status_query = request.args.get('status')   
+    show_archived = request.args.get('archived', 'false') == 'true'  
 
-   
     query = Module.query
 
- 
     if name_query:
         query = query.filter(Module.name.ilike(f'%{name_query}%'))  
- 
+
     if status_query in ['новый', 'черновик']:
         query = query.filter(Module.status == status_query)
 
-    
+   
+    if show_archived:
+        query = query.filter(Module.status == 'принят в работу')
+
     modules = query.all()
     
-   
     return jsonify([{'id': module.id, 'name': module.name, 'status': module.status} for module in modules])
 
 if __name__ == '__main__':
