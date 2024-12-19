@@ -1,9 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, jsonify, url_for, flash, session
 from flask_mail import Mail, Message
 import os
 import json
 from werkzeug.utils import secure_filename 
-import io
 from flask_bootstrap import Bootstrap
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from db import db
@@ -30,33 +29,27 @@ migrate = Migrate(app, db)
 
 
 
-@app.route('/view_modules', methods=['GET'])
-def view_modules():
-    name_query = request.args.get('name', '') 
-    status_query = request.args.get('status')   
-    show_archived = request.args.get('archived', 'false') == 'true'  
+# @app.route('/view_modules', methods=['GET'])
+# def view_modules():
+#     name_query = request.args.get('name', '') 
+#     status_query = request.args.get('status')   
+#     show_archived = request.args.get('archived', 'false') == 'true'  
 
-    query = Module.query
+#     query = Module.query
 
-    if name_query:
-        query = query.filter(Module.name.ilike(f'%{name_query}%'))  
+#     if name_query:
+#         query = query.filter(Module.module_name.ilike(f'%{name_query}%'))  
 
-    if status_query in ['новый', 'черновик']:
-        query = query.filter(Module.status == status_query)
+#     if status_query in ['новый', 'черновик']:
+#         query = query.filter(Module.state == status_query)
 
    
-    if show_archived:
-        query = query.filter(Module.status == 'принят в работу')
+#     if show_archived:
+#         query = query.filter(Module.state == 'принят в работу')
 
-    modules = query.all()
+#     modules = query.all()
     
-    return jsonify([{'id': module.id, 'name': module.name, 'status': module.status} for module in modules])
-
-if __name__ == '__main__':
-    with app.app_context():
-        db.create_all() 
-    app.run(debug=True)
-
+#     return jsonify([{'id': module.id, 'name': module.module_name, 'status': module.state} for module in modules])
 
 # Декоратор для проверки аутентификации
 def login_required(f):
@@ -235,6 +228,10 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 # Вход
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -251,8 +248,6 @@ def login():
         flash("Неверный email или пароль.", "danger")
     return render_template('login.html')
 
-
-
 # Выход
 @app.route('/logout')
 def logout():
@@ -261,17 +256,6 @@ def logout():
     return redirect(url_for('login'))  
 
 
-# Главная страница (только для зарегистрированных пользователей)
-@app.route('/')
-@login_required
-def index():
-    modules = Module.query.all()
-    count_modules = Module.query.filter(Module.state == 'новый').count()
-    user_logged_in = 'user_id' in session  
-    current_user_id = session['user_id']
-    user = User.query.filter_by(id=current_user_id).first()
-    user_name = user.full_name
-    return render_template('index.html',current_user_id=user_name, modules=modules, count_modules=count_modules, user_logged_in=user_logged_in)
 
 
 @app.route('/hr_add', methods=['GET', 'POST'])
@@ -316,11 +300,11 @@ def hr_add():
     sogl_users = User.query.filter_by(sys_role='согласовант').all()
     return render_template('hr_add.html', users=users, sogl_users=sogl_users)  
 
-@app.route('/view_modules', methods=['GET'])
-@login_required
-def view_modules():
-    modules = Module.query.filter(Module.state.in_( ['новый', 'черновик'] )).all()
-    return render_template('modules.html', modules=modules)  
+# @app.route('/view_modules', methods=['GET'])
+# @login_required
+# def view_modules():
+#     modules = Module.query.filter(Module.state.in_( ['новый', 'черновик'] )).all()
+#     return render_template('modules.html', modules=modules)  
 
 
 @app.route('/joint_development/<int:module_id>', methods=['GET'])
@@ -385,39 +369,16 @@ def send_email(recipient):
     with app.app_context():
         mail.send(msg)
 
-
-
-
-
-@app.route('/view_collaborations')
-def view_collaborations():
-    collaborations = Collaboration.query.all()  
-    return render_template('view_collaborations.html', collaborations=collaborations)
-
-
-@app.route('/collaborate', methods=['GET', 'POST'])
-def manage_collaboration():
-    modules = Module.query.all()  
-    users = User.query.all()      
-
-    if request.method == 'POST':
-        module_id = request.form.get('module_id')
-        user_id = request.form.get('user_id')
-        action = request.form.get('action')
-
-        if action == 'add':
-            new_collab = Collaboration(module_id=module_id, user_id=user_id)
-            db.session.add(new_collab)
-            db.session.commit()
-        elif action == 'remove':
-            collaboration_to_remove = Collaboration.query.filter_by(module_id=module_id, user_id=user_id).first()
-            if collaboration_to_remove:
-                db.session.delete(collaboration_to_remove)
-                db.session.commit()
-
-
-    return render_template('collaborate.html', modules=modules, users=users)
-
+@app.route('/')
+@login_required
+def index():
+    modules = Module.query.all()
+    count_modules = Module.query.filter(Module.state == 'новый').count()
+    user_logged_in = 'user_id' in session  
+    current_user_id = session['user_id']
+    user = User.query.filter_by(id=current_user_id).first()
+    user_name = user.full_name
+    return render_template('index.html',current_user_id=user_name, modules=modules, count_modules=count_modules, user_logged_in=user_logged_in), 200
 
 
 if __name__ == '__main__':
