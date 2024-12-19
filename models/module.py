@@ -2,8 +2,8 @@ from db import db
 
 class Module(db.Model):
     __tablename__ = 'modules'
-    __table_args__ = {'extend_existing': True}
-    
+    __table_args__ = {'extend_existing': True} 
+
     id = db.Column(db.Integer, primary_key=True)
     code_name = db.Column(db.String(255), nullable=True)
     state =  db.Column(db.String(255),  nullable=True)
@@ -19,7 +19,5 @@ class Module(db.Model):
     responsible = db.Column(db.String(255), nullable=True)
     materials = db.Column(db.JSON, nullable=True) 
 
-    
-
-def __repr__(self):
+    def __repr__(self):
         return f"<Module {self.module_name}>"
