@@ -222,7 +222,10 @@ def index():
     modules = Module.query.all()
     count_modules = Module.query.filter(Module.state == 'новый').count()
     user_logged_in = 'user_id' in session  
-    return render_template('index.html', modules=modules, count_modules=count_modules, user_logged_in=user_logged_in)
+    current_user_id = session['user_id']
+    user = User.query.filter_by(id=current_user_id).first()
+    user_name = user.full_name
+    return render_template('index.html',current_user_id=user_name, modules=modules, count_modules=count_modules, user_logged_in=user_logged_in)
 
 
 @app.route('/hr_add', methods=['GET', 'POST'])
@@ -233,7 +236,7 @@ def hr_add():
         code_name = request.form.get('module_name')
         responsible_user_ids = request.form.getlist('responsible_users')
         duration_develop = request.form.get('duration')
-        importance = request.form.get('importance')
+        selected_sogl_users = request.form.getlist('sogl_users[]')  
         state = "новый"
 
 
@@ -242,10 +245,9 @@ def hr_add():
         state=state,
         responsible_user_ids=responsible_user_ids,
         duration_develop=duration_develop,
-        importance=importance
+        sogl_users=selected_sogl_users
         )
 
-        # Добавление записи в сессию и сохранение в базе данных
         try:
             db.session.add(new_module)
             db.session.commit()
@@ -265,7 +267,8 @@ def hr_add():
         return redirect(url_for('index'))
     
     users = User.query.all()
-    return render_template('hr_add.html', users=users)  
+    sogl_users = User.query.filter_by(sys_role='согласовант').all()
+    return render_template('hr_add.html', users=users, sogl_users=sogl_users)  
 
 @app.route('/view_modules', methods=['GET'])
 @login_required

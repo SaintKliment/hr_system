@@ -73,13 +73,17 @@
       <label for="module_name">Название модуля:</label>
       <input type="text" id="module_name" name="module_name" required />
 
-      <label for="importance">Важность:</label>
-      <select id="importance" name="importance" required>
-        <option value="" disabled selected>Выберите важность</option>
-        <option value="очень важный">Очень важный</option>
-        <option value="важный">Важный</option>
-        <option value="нейтральный">Нейтральный</option>
-      </select>
+      <label>Согласованты:</label><br />
+      {% for sogl_user in sogl_users %}
+      <input
+        type="checkbox"
+        id="sogl_user_{{ sogl_user.id }}"
+        name="sogl_users[]"
+        value="{{ sogl_user.id }}"
+      />
+      <label for="sogl_user_{{ sogl_user.id }}">{{ sogl_user.full_name }}</label
+      ><br />
+      {% endfor %}
 
       <label for="responsible_users">Ответственные пользователи:</label>
       <div id="responsible_users">

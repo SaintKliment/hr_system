@@ -6,15 +6,12 @@ function sendMessage() {
   const duration = document.getElementById("duration").value || null;
   const responsible = document.getElementById("responsible").value || null;
 
+  const userId = getCurrentUserId();
+  print(userId);
+
   const path = window.location.pathname;
   const segments = path.split("/");
   const moduleId = segments.pop() || segments.pop();
-
-  //   console.log("Отправляем данные:", {
-  //     module_id: moduleId,
-  //     module_name: moduleName,
-  //     data_source: dataSource,
-  //   }); // Лог для проверки
 
   socket.emit("update_module", {
     module_id: moduleId,

@@ -9,7 +9,7 @@ class Module(db.Model):
     state =  db.Column(db.String(255),  nullable=True)
     responsible_user_ids = db.Column(db.String(255), nullable=True)
     duration_develop = db.Column(db.Integer, nullable=True)
-    importance = db.Column(db.String(255), nullable=True)
+    sogl_users = db.Column(db.String(255), nullable=True)
     
     module_name = db.Column(db.String(255), nullable=True)
     positions = db.Column(db.JSON, nullable=True)  
