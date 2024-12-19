@@ -7,13 +7,13 @@
 
     <style>
       body {
-        background-color: #f8f9fa; /* Светлый фон */
-        font-family: "Roboto", sans-serif; /* Современный шрифт */
+        background-color: #f8f9fa;
+        font-family: "Roboto", sans-serif;
       }
 
       h1 {
         font-weight: 700;
-        color: #28a745; /* Зеленый цвет для заголовка */
+        color: #28a745;
       }
 
       p.lead {
@@ -22,7 +22,7 @@
 
       .container {
         max-width: 700px;
-        margin: 0 auto; /* Центровка содержимого */
+        margin: 0 auto;
       }
 
       /* Кнопки сверху */
@@ -123,11 +123,11 @@
         background: linear-gradient(45deg, #6c757d, #5a6268);
       }
       .collab-buttons {
-             display: flex; 
-             justify-content: center; 
-             margin-top: 20px; 
-             gap: 10px;
-         }
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+      }
 
       .mt-5 {
         font-weight: 700;
@@ -137,9 +137,14 @@
   </head>
   <body>
     <!-- Кнопки входа и регистрации сверху с эффектами -->
+    <div>{{current_user_id}}</div>
     <div class="top-btns">
+      {% if session['user_id'] %}
+      <a href="/logout" class="custom-btn btn-gray">Выйти</a>
+      {% else %}
       <a href="/login" class="custom-btn btn-green">Войти</a>
       <a href="/signup" class="custom-btn btn-gray">Зарегистрироваться</a>
+      {% endif %}
     </div>
 
     <div class="container mt-5">
@@ -148,12 +153,27 @@
         <p class="lead mt-3">
           Управляйте модулями быстро и удобно с помощью нашего интерфейса.
         </p>
+
         <div class="mt-4">
           <a href="/add" class="custom-btn btn-green me-3">
             <span>Создать новый модуль</span>
           </a>
           <a href="/draft" class="custom-btn btn-gray">
             <span>Перейти в черновик</span>
+          </a>
+          <a href="/hr_add" class="custom-btn btn-gray">
+            <span>Назначить новый модуль HR</span>
+          </a>
+
+          <a href="/joint_development" class="custom-btn btn-green me-3">
+            <span>Совместная разработка</span>
+          </a>
+
+          <a href="/view_modules" class="custom-btn btn-green me-3">
+            <span>Перейти к модулям</span>
+            {% if count_modules > 0 %}
+            <span class="notification-badge">{{ count_modules }}</span>
+            {% endif %}
           </a>
         </div>
 
@@ -176,7 +196,18 @@
 </div>
       </div>
     </div>
+
     <style>
+      .notification-badge {
+        display: inline-block;
+        background-color: red; /* Цвет фона кружка */
+        color: white; /* Цвет текста */
+        border-radius: 50%; /* Круглая форма */
+        padding: 5px 10px; /* Отступы для размера */
+        font-size: 14px; /* Размер шрифта */
+        margin-left: 8px; /* Отступ слева от кнопки */
+      }
+
       table {
         width: 100%;
         border-collapse: collapse;

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Добавить модуль</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa; /* Светлый фон */
+        margin: 0;
+        padding: 20px;
+      }
+
+      h1 {
+        color: #4caf50; /* Зеленый цвет заголовка */
+        text-align: center;
+      }
+
+      form {
+        background-color: #ffffff; /* Белый фон формы */
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto; /* Центрирование формы */
+      }
+
+      label {
+        color: #333333; /* Темный текст для меток */
+        font-weight: bold;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0 20px;
+        border: 1px solid #cccccc; /* Светло-серый бордер */
+        border-radius: 4px;
+        box-sizing: border-box; /* Учет отступов и границ в ширине */
+      }
+
+      button {
+        background-color: #4caf50; /* Зеленая кнопка */
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #45a049; /* Темно-зеленый при наведении */
+      }
+
+      .file-input {
+        margin-bottom: 10px; /* Отступ для файлового ввода */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Добавить модуль</h1>
+    <form
+      action="/hr_add"
+      method="POST"
+      id="moduleForm"
+      enctype="multipart/form-data"
+    >
+      <label for="module_name">Название модуля:</label>
+      <input type="text" id="module_name" name="module_name" required />
+
+      <label>Согласованты:</label><br />
+      {% for sogl_user in sogl_users %}
+      <input
+        type="checkbox"
+        id="sogl_user_{{ sogl_user.id }}"
+        name="sogl_users[]"
+        value="{{ sogl_user.id }}"
+      />
+      <label for="sogl_user_{{ sogl_user.id }}">{{ sogl_user.full_name }}</label
+      ><br />
+      {% endfor %}
+
+      <label for="responsible_users">Ответственные пользователи:</label>
+      <div id="responsible_users">
+        <!-- Здесь будут чекбоксы с пользователями из БД -->
+        {% for user in users %}
+        <div>
+          <input
+            type="checkbox"
+            id="user_{{ user.id }}"
+            name="responsible_users"
+            value="{{ user.id }}"
+          />
+          <label for="user_{{ user.id }}">{{ user.full_name }}</label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <label for="duration">Срок создания модуля (в днях):</label>
+      <input type="number" id="duration" name="duration" required />
+
+      <button type="submit">Добавить модуль</button>
+    </form>
+  </body>
+</html>
