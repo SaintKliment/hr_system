@@ -137,9 +137,10 @@
   </head>
   <body>
     <!-- Кнопки входа и регистрации сверху с эффектами -->
-    <div>{{current_user_id}}</div>
+    
     <div class="top-btns">
       {% if session['user_id'] %}
+      <div >{{current_user_id}}</div>
       <a href="/logout" class="custom-btn btn-gray">Выйти</a>
       {% else %}
       <a href="/login" class="custom-btn btn-green">Войти</a>
@@ -174,6 +175,9 @@
             {% if count_modules > 0 %}
             <span class="notification-badge">{{ count_modules }}</span>
             {% endif %}
+          </a>
+          <a href="/view_modules_sogl" class="custom-btn btn-gray">
+            <span>Перейти к согласованию</span>
           </a>
         </div>
 

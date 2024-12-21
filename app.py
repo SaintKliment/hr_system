@@ -307,10 +307,101 @@ def hr_add():
 #     return render_template('modules.html', modules=modules)  
 
 
-@app.route('/joint_development/<int:module_id>', methods=['GET'])
+@app.route('/joint_development/<int:module_id>', methods=['GET', 'POST'])
 @login_required
 def joint_development_detail(module_id):
     module = Module.query.get_or_404(module_id)  # Получаем модуль по ID или 404, если не найден
+    print(vars(module))  
+    if request.method == 'POST':
+        module_name = request.form['module_name']
+        code_name = module.code_name
+        print(module_name,code_name)
+        # Получаем список должностей и преобразуем их в русские названия
+        positions = [positions_dict.get(pos, pos) for pos in request.form.getlist('positions')]
+
+        # Формируем список мероприятий и преобразуем типы в русские названия
+        activities = [
+            {
+                'name': request.form.getlist('activity_name[]')[i],
+                'type': activities_dict.get(request.form.getlist('activity_type[]')[i], request.form.getlist('activity_type[]')[i]),
+                'content': request.form.getlist('activity_content[]')[i]
+            }
+            for i in range(len(request.form.getlist('activity_name[]')))
+        ]
+
+        data_source = request.form['data_source']
+        duration = int(request.form['duration'])  # Приводим к целому числу
+        responsible = request.form['responsible']
+
+        print("Files in request:", request.files)
+        print("Materials files:", request.files.getlist('materials[]'))
+
+        materials = []
+        for file in request.files.getlist('materials[]'):
+            print("Processing file:", file.filename)
+            if file and file.filename:
+                filename = secure_filename(file.filename)
+                file_data = file.read()
+                materials.append({
+                    'filename': filename,
+                    'data': str(file_data)  # Преобразуем в строку для отладки
+                })
+            else:
+                print("Empty file or filename")
+
+        print("Materials before JSON conversion:", materials)
+        
+        # Преобразуем список материалов в JSON
+        materials_json = json.dumps(materials) if materials else '[]'  # Если нет материалов, возвращаем пустой массив
+
+        # Поиск существующего модуля по code_name
+        existing_module = Module.query.filter_by(code_name=code_name).first()
+
+        if existing_module:
+            # Обновляем существующий модуль
+            existing_module.module_name = module_name
+            existing_module.positions = positions
+            existing_module.activities = activities
+            existing_module.data_source = data_source
+            existing_module.duration = duration
+            existing_module.responsible = responsible
+            existing_module.materials = materials_json
+            existing_module.state = "на согласовании"
+            
+            try:
+                db.session.commit()
+                print("Модуль успешно обновлён в базе данных.")
+                flash('Модуль успешно обновлён!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                print(f"Произошла ошибка при обновлении модуля: {str(e)}")
+                flash('Ошибка при обновлении модуля.', 'error')
+        
+        else:
+            # Если модуль не найден, создаём новый
+            new_module = Module(
+                module_name=module_name,
+                code_name=code_name,
+                positions=positions,
+                activities=activities,
+                data_source=data_source,
+                duration=duration,
+                responsible=responsible,
+                materials=materials_json
+            )
+            
+            try:
+                db.session.add(new_module)
+                db.session.commit()
+                print("Новый модуль успешно добавлен в базу данных.")
+                flash('Новый модуль успешно добавлен!', 'success')
+            except Exception as e:
+                db.session.rollback()
+                print(f"Произошла ошибка при добавлении модуля: {str(e)}")
+                flash('Ошибка при добавлении модуля.', 'error')
+
+        return redirect(url_for('index'))
+    
     return render_template('module_correct.html', module=module)
 
 @app.route('/joint_development', methods=['GET'])
